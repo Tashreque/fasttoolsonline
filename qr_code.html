@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart QR Code Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .size-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .size-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .color-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .color-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .qr-output {
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .qr-output.show {
+            display: block;
+        }
+
+        #qrCanvas {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            height: auto;
+        }
+
+        .download-btn {
+            margin-top: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .error {
+            color: #f5576c;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .scan-note {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 10px 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #2e7d32;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle span {
+            font-size: 20px;
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 30, 46, 0.95);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        body.dark-mode h1 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .subtitle {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode label {
+            color: #d0d0d0;
+        }
+
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="url"],
+        body.dark-mode input[type="email"],
+        body.dark-mode textarea,
+        body.dark-mode select {
+            background: #2a2a3e;
+            border: 2px solid #3a3a4e;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode input:focus,
+        body.dark-mode textarea:focus,
+        body.dark-mode select:focus {
+            border-color: #667eea;
+            background: #323248;
+        }
+
+        body.dark-mode input[type="range"] {
+            background: #3a3a4e;
+        }
+
+        body.dark-mode input[type="color"] {
+            background: #2a2a3e;
+            border: 2px solid #3a3a4e;
+        }
+
+        body.dark-mode .color-input span {
+            color: #d0d0d0;
+        }
+
+        body.dark-mode .scan-note {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            color: #81c784;
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span>
+    </div>
+
+    <div class="container">
+        <h1>🎯 Smart QR Generator</h1>
+        <p class="subtitle">Create scannable QR codes instantly</p>
+
+        <div class="input-group">
+            <label for="dataType">Content Type</label>
+            <select id="dataType">
+                <option value="text">Text</option>
+                <option value="url">URL</option>
+                <option value="email">Email</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="qrData">Content</label>
+            <textarea id="qrData" placeholder="Enter text, URL, or email..."></textarea>
+            <span class="error" id="dataError">Please enter some content</span>
+        </div>
+
+        <div class="input-group">
+            <label for="qrSize">QR Code Size: <span class="size-value" id="sizeValue">300px</span></label>
+            <input type="range" id="qrSize" min="200" max="600" value="300" step="50">
+        </div>
+
+        <div class="input-group">
+            <label>Colors</label>
+            <div class="color-controls">
+                <div class="color-input">
+                    <input type="color" id="fgColor" value="#000000">
+                    <span>Foreground</span>
+                </div>
+                <div class="color-input">
+                    <input type="color" id="bgColor" value="#ffffff">
+                    <span>Background</span>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="generateQR()">Generate QR Code</button>
+
+        <div class="qr-output" id="qrOutput">
+            <canvas id="qrCanvas"></canvas>
+            <div class="scan-note">✓ Fully scannable with any QR reader!</div>
+            <button class="download-btn" onclick="downloadQR()">Download QR Code</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        const qrSize = document.getElementById('qrSize');
+        const sizeValue = document.getElementById('sizeValue');
+        const dataType = document.getElementById('dataType');
+        const qrData = document.getElementById('qrData');
+        let qrCodeInstance = null;
+
+        // Dark mode toggle with real-time sync across tabs
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('themeIcon');
+            const isDark = document.body.classList.contains('dark-mode');
+            icon.textContent = isDark ? '☀️' : '🌙';
+            
+            // Save preference globally
+            localStorage.setItem('smarttools-darkMode', isDark);
+        }
+
+        // Load saved theme preference on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const darkMode = localStorage.getItem('smarttools-darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').textContent = '☀️';
+            }
+        });
+
+        // Listen for changes in other tabs/windows
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'smarttools-darkMode') {
+                const isDark = e.newValue === 'true';
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                    document.getElementById('themeIcon').textContent = '☀️';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    document.getElementById('themeIcon').textContent = '🌙';
+                }
+            }
+        });
+
+        qrSize.addEventListener('input', (e) => {
+            sizeValue.textContent = e.target.value + 'px';
+        });
+
+        dataType.addEventListener('change', (e) => {
+            const type = e.target.value;
+            if (type === 'email') {
+                qrData.placeholder = 'Enter email address...';
+            } else if (type === 'url') {
+                qrData.placeholder = 'Enter URL (https://example.com)...';
+            } else {
+                qrData.placeholder = 'Enter text...';
+            }
+        });
+
+        function generateQR() {
+            const data = qrData.value.trim();
+            const dataError = document.getElementById('dataError');
+            
+            if (!data) {
+                dataError.classList.add('show');
+                return;
+            }
+            
+            dataError.classList.remove('show');
+
+            let qrContent = data;
+            const type = dataType.value;
+            
+            if (type === 'email' && !data.startsWith('mailto:')) {
+                qrContent = 'mailto:' + data;
+            } else if (type === 'url' && !data.startsWith('http://') && !data.startsWith('https://')) {
+                qrContent = 'https://' + data;
+            }
+
+            const size = parseInt(qrSize.value);
+            const fgColor = document.getElementById('fgColor').value;
+            const bgColor = document.getElementById('bgColor').value;
+
+            createQRCode(qrContent, size, fgColor, bgColor);
+            
+            document.getElementById('qrOutput').classList.add('show');
+        }
+
+        function createQRCode(text, size, fgColor, bgColor) {
+            const canvas = document.getElementById('qrCanvas');
+            const container = canvas.parentElement;
+            
+            // Clear previous QR code
+            if (qrCodeInstance) {
+                canvas.innerHTML = '';
+            }
+            
+            // Create temporary container for QRCode library
+            const tempDiv = document.createElement('div');
+            tempDiv.style.display = 'none';
+            container.appendChild(tempDiv);
+            
+            // Generate QR code using library
+            qrCodeInstance = new QRCode(tempDiv, {
+                text: text,
+                width: size,
+                height: size,
+                colorDark: fgColor,
+                colorLight: bgColor,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Wait for QR code to be generated, then draw to canvas
+            setTimeout(() => {
+                const qrImg = tempDiv.querySelector('img');
+                if (qrImg) {
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    
+                    qrImg.onload = function() {
+                        ctx.drawImage(qrImg, 0, 0, size, size);
+                        container.removeChild(tempDiv);
+                    };
+                    
+                    // Trigger load if already loaded
+                    if (qrImg.complete) {
+                        ctx.drawImage(qrImg, 0, 0, size, size);
+                        container.removeChild(tempDiv);
+                    }
+                }
+            }, 100);
+        }
+
+        function downloadQR() {
+            const canvas = document.getElementById('qrCanvas');
+            
+            // Check if canvas has content
+            if (canvas.width === 0 || canvas.height === 0) {
+                alert('Please generate a QR code first!');
+                return;
+            }
+            
+            try {
+                const link = document.createElement('a');
+                const timestamp = new Date().getTime();
+                link.download = `qrcode-${timestamp}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (error) {
+                alert('Failed to download QR code. Please try again.');
+                console.error('Download error:', error);
+            }
+        }
+
+        // Apply dark mode immediately on load
+        window.addEventListener("DOMContentLoaded", () => {
+        const isDark = localStorage.getItem("smarttools-darkMode") === "true";
+        document.body.classList.toggle("dark-mode", isDark);
+        const icon = document.getElementById("themeIcon");
+        if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        });
+
+        // Listen for changes from other pages (storage event)
+        window.addEventListener("storage", (e) => {
+        if (e.key === "smarttools-darkMode") {
+            const isDark = e.newValue === "true";
+            document.body.classList.toggle("dark-mode", isDark);
+            const icon = document.getElementById("themeIcon");
+            if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        }
+        });
+
+        // 🔄 Also handle when you come back from another tool page
+        document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            const isDark = localStorage.getItem("smarttools-darkMode") === "true";
+            document.body.classList.toggle("dark-mode", isDark);
+            const icon = document.getElementById("themeIcon");
+            if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        }
+        });
+
+    </script>
+</body>
+</html>

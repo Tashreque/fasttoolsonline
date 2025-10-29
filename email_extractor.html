@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Email Extractor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #666;
+            text-align: center;
+        }
+
+        .tab-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(102, 126, 234, 0.05);
+            display: none;
+        }
+
+        .upload-area.active {
+            display: block;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: rgba(118, 75, 162, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #999;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .text-input {
+            display: block;
+        }
+
+        .text-input.hidden {
+            display: none;
+        }
+
+        .options {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .checkbox-group label {
+            color: #555;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .stats-bar {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            color: #555;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: #2e7d32;
+            font-weight: 700;
+        }
+
+        .email-list {
+            background: #f8f8f8;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .email-item {
+            background: white;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .email-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .email-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .email-text {
+            font-family: 'Courier New', monospace;
+            color: #333;
+            font-size: 14px;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            width: 70px;
+            flex-shrink: 0;
+            align-self: flex-start;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+
+        .copy-btn.copied {
+            background: #4caf50;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            margin-top: 0;
+        }
+
+        .secondary-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle span {
+            font-size: 20px;
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 30, 46, 0.95);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        body.dark-mode h1 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .subtitle {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .tab-btn {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: #3a3a4e;
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .tab-btn:hover {
+            border-color: #667eea;
+            color: #8b9cff;
+        }
+
+        body.dark-mode textarea {
+            background: #2a2a3e;
+            border-color: #3a3a4e;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode textarea:focus {
+            border-color: #667eea;
+            background: #323248;
+        }
+
+        body.dark-mode .upload-area {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+
+        body.dark-mode .upload-area:hover {
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        body.dark-mode .upload-text {
+            color: #8b9cff;
+        }
+
+        body.dark-mode .upload-subtext {
+            color: #888;
+        }
+
+        body.dark-mode .checkbox-group label {
+            color: #d0d0d0;
+        }
+
+        body.dark-mode .stats-bar {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+        }
+
+        body.dark-mode .stat-label {
+            color: #d0d0d0;
+        }
+
+        body.dark-mode .stat-value {
+            color: #81c784;
+        }
+
+        body.dark-mode .email-list {
+            background: #2a2a3e;
+        }
+
+        body.dark-mode .email-item {
+            background: #323248;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .email-text {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .empty-state {
+            color: #888;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        body.dark-mode ::-webkit-scrollbar-track {
+            background: #2a2a3e;
+        }
+
+        body.dark-mode ::-webkit-scrollbar-thumb {
+            background: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span>
+    </div>
+
+    <div class="container">
+        <h1>📧 Smart Email Extractor</h1>
+        <p class="subtitle">Extract emails from text, resumes, LinkedIn exports & more</p>
+
+        <div class="input-section">
+            <div class="tab-buttons">
+                <div class="tab-btn active" onclick="switchTab('text')">📝 Paste Text</div>
+                <div class="tab-btn" onclick="switchTab('file')">📄 Upload File</div>
+            </div>
+
+            <div class="text-input" id="textInput">
+                <textarea id="textArea" placeholder="Paste your text here... The tool will automatically detect and extract all email addresses.
+
+Example text:
+Contact us at support@example.com or sales@company.org
+John Doe - john.doe@email.com
+Jane Smith <jane.smith@domain.co.uk>"></textarea>
+            </div>
+
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Click to upload or drag & drop</div>
+                <div class="upload-subtext">Supports TXT, PDF, DOC, DOCX, CSV files</div>
+            </div>
+
+            <input type="file" id="fileInput" accept=".txt,.pdf,.doc,.docx,.csv" onchange="handleFileSelect(event)">
+
+            <div class="options">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="removeDuplicates" checked>
+                    <label for="removeDuplicates">Remove duplicates</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sortAlpha">
+                    <label for="sortAlpha">Sort alphabetically</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="validateEmails" checked>
+                    <label for="validateEmails">Validate format</label>
+                </div>
+            </div>
+
+            <button onclick="extractEmails()">Extract Emails</button>
+        </div>
+
+        <div class="results-section" id="results">
+            <div class="stats-bar">
+                <div class="stat-row">
+                    <span class="stat-label">Total Emails Found:</span>
+                    <span class="stat-value" id="totalCount">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Unique Emails:</span>
+                    <span class="stat-value" id="uniqueCount">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Domains:</span>
+                    <span class="stat-value" id="domainCount">0</span>
+                </div>
+            </div>
+
+            <div class="email-list" id="emailList"></div>
+
+            <div class="action-buttons">
+                <button onclick="copyAllEmails()">Copy All Emails</button>
+                <button class="secondary-btn" onclick="downloadEmails()">Download as CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let extractedEmails = [];
+        let currentTab = 'text';
+
+        // Dark mode toggle with real-time sync across tabs
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('themeIcon');
+            const isDark = document.body.classList.contains('dark-mode');
+            icon.textContent = isDark ? '☀️' : '🌙';
+            
+            // Save preference globally
+            localStorage.setItem('smarttools-darkMode', isDark);
+        }
+
+        // Load saved theme preference on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const darkMode = localStorage.getItem('smarttools-darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').textContent = '☀️';
+            }
+        });
+
+        // Listen for changes in other tabs/windows
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'smarttools-darkMode') {
+                const isDark = e.newValue === 'true';
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                    document.getElementById('themeIcon').textContent = '☀️';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    document.getElementById('themeIcon').textContent = '🌙';
+                }
+            }
+        });
+
+        // Tab switching
+        function switchTab(tab) {
+            currentTab = tab;
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const textInput = document.getElementById('textInput');
+            const uploadArea = document.getElementById('uploadArea');
+
+            if (tab === 'text') {
+                textInput.classList.remove('hidden');
+                uploadArea.classList.remove('active');
+            } else {
+                textInput.classList.add('hidden');
+                uploadArea.classList.add('active');
+            }
+        }
+
+        // Drag and drop
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const text = e.target.result;
+                document.getElementById('textArea').value = text;
+                extractEmails();
+            };
+
+            if (file.type === 'application/pdf') {
+                alert('PDF parsing requires external libraries. Please copy text from PDF and paste it in the text area.');
+                return;
+            }
+
+            reader.readAsText(file);
+        }
+
+        // Email extraction
+        function extractEmails() {
+            const text = document.getElementById('textArea').value;
+            
+            if (!text.trim()) {
+                alert('Please enter or upload some text first!');
+                return;
+            }
+
+            // Email regex pattern - more strict
+            const emailRegex = /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/g;
+            let emails = text.match(emailRegex) || [];
+
+            // Validate emails if option is checked
+            if (document.getElementById('validateEmails').checked) {
+                emails = emails.filter(email => isValidEmail(email));
+            }
+
+            // Convert to lowercase for comparison
+            const originalCount = emails.length;
+
+            // Remove duplicates if option is checked
+            if (document.getElementById('removeDuplicates').checked) {
+                emails = [...new Set(emails.map(e => e.toLowerCase()))];
+            } else {
+                emails = emails.map(e => e.toLowerCase());
+            }
+
+            // Sort alphabetically if option is checked
+            if (document.getElementById('sortAlpha').checked) {
+                emails.sort();
+            }
+
+            extractedEmails = emails;
+            displayResults(emails, originalCount);
+        }
+
+        function isValidEmail(email) {
+            // Stricter validation
+            const validRegex = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
+            
+            // Additional checks
+            if (email.includes('..')) return false; // No consecutive dots
+            if (email.includes('@.')) return false; // No @ followed by dot
+            if (email.includes('.@')) return false; // No dot followed by @
+            if (email.includes('@@')) return false; // No double @
+            if (email.split('@').length !== 2) return false; // Exactly one @
+            if (email.endsWith('.')) return false; // No trailing dot
+            if (email.startsWith('.')) return false; // No leading dot
+            
+            const [localPart, domain] = email.split('@');
+            
+            // Check local part (before @)
+            if (!localPart || localPart.length === 0) return false;
+            if (localPart.startsWith('.') || localPart.endsWith('.')) return false;
+            
+            // Check domain part (after @)
+            if (!domain || domain.length === 0) return false;
+            if (domain.startsWith('.') || domain.startsWith('-')) return false;
+            if (!domain.includes('.')) return false; // Must have at least one dot
+            
+            const domainParts = domain.split('.');
+            const tld = domainParts[domainParts.length - 1];
+            if (tld.length < 2) return false; // TLD must be at least 2 chars
+            
+            return validRegex.test(email);
+        }
+
+        function displayResults(emails, originalCount) {
+            const resultsSection = document.getElementById('results');
+            const emailList = document.getElementById('emailList');
+
+            if (emails.length === 0) {
+                emailList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>No emails found in the text.</p>
+                    </div>
+                `;
+                resultsSection.classList.add('show');
+                return;
+            }
+
+            // Calculate stats
+            const uniqueEmails = emails.length;
+            const domains = [...new Set(emails.map(e => e.split('@')[1]))];
+            
+            document.getElementById('totalCount').textContent = originalCount || uniqueEmails;
+            document.getElementById('uniqueCount').textContent = uniqueEmails;
+            document.getElementById('domainCount').textContent = domains.length;
+
+            // Display email list
+            emailList.innerHTML = emails.map((email, index) => `
+                <div class="email-item">
+                    <span class="email-text">${email}</span>
+                    <button class="copy-btn" onclick="copyEmail('${email}', ${index})">Copy</button>
+                </div>
+            `).join('');
+
+            resultsSection.classList.add('show');
+        }
+
+        function copyEmail(email, index) {
+            navigator.clipboard.writeText(email).then(() => {
+                const btn = document.querySelectorAll('.copy-btn')[index];
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function copyAllEmails() {
+            if (extractedEmails.length === 0) return;
+
+            const emailText = extractedEmails.join('\n');
+            navigator.clipboard.writeText(emailText).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied All!';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        function downloadEmails() {
+            if (extractedEmails.length === 0) return;
+
+            const csvContent = 'Email Address\n' + extractedEmails.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `extracted-emails-${new Date().getTime()}.csv`;
+            link.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Apply dark mode immediately on load
+        window.addEventListener("DOMContentLoaded", () => {
+        const isDark = localStorage.getItem("smarttools-darkMode") === "true";
+        document.body.classList.toggle("dark-mode", isDark);
+        const icon = document.getElementById("themeIcon");
+        if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        });
+
+        // Listen for changes from other pages (storage event)
+        window.addEventListener("storage", (e) => {
+        if (e.key === "smarttools-darkMode") {
+            const isDark = e.newValue === "true";
+            document.body.classList.toggle("dark-mode", isDark);
+            const icon = document.getElementById("themeIcon");
+            if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        }
+        });
+
+        // 🔄 Also handle when you come back from another tool page
+        document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            const isDark = localStorage.getItem("smarttools-darkMode") === "true";
+            document.body.classList.toggle("dark-mode", isDark);
+            const icon = document.getElementById("themeIcon");
+            if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        }
+        });
+
+    </script>
+</body>
+</html>

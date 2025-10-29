@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Color Palette Extractor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 50px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(102, 126, 234, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: rgba(118, 75, 162, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #999;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .settings {
+            display: none;
+            margin-bottom: 25px;
+        }
+
+        .settings.show {
+            display: block;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .slider-description {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .preview-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .image-preview {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .color-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .color-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-swatch {
+            width: 100%;
+            height: 120px;
+            position: relative;
+        }
+
+        .color-info {
+            padding: 12px;
+            text-align: center;
+        }
+
+        .color-hex {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .color-rgb {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .copy-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .copy-indicator.show {
+            opacity: 1;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .secondary-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle span {
+            font-size: 20px;
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 30, 46, 0.95);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        body.dark-mode h1 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .subtitle {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .upload-area {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+
+        body.dark-mode .upload-area:hover {
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        body.dark-mode .upload-text {
+            color: #8b9cff;
+        }
+
+        body.dark-mode .upload-subtext {
+            color: #888;
+        }
+
+        body.dark-mode label {
+            color: #d0d0d0;
+        }
+
+        body.dark-mode .slider-description {
+            color: #999;
+        }
+
+        body.dark-mode input[type="range"] {
+            background: #3a3a4e;
+        }
+
+        body.dark-mode .color-card {
+            background: #323248;
+        }
+
+        body.dark-mode .color-hex {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .color-rgb {
+            color: #b0b0b0;
+        }
+
+        @media (max-width: 768px) {
+            .palette-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span>
+    </div>
+
+    <div class="container">
+        <h1>🎨 Smart Color Palette Extractor</h1>
+        <p class="subtitle">Extract beautiful color palettes from any image</p>
+
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-text">Click to upload or drag & drop</div>
+            <div class="upload-subtext">Supports JPEG, PNG, GIF, WebP images</div>
+        </div>
+
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
+
+        <div class="settings" id="settings">
+            <div class="setting-group">
+                <label>Number of Colors: <span class="slider-value" id="colorCountValue">5</span></label>
+                <div class="slider-container">
+                    <input type="range" id="colorCount" min="3" max="10" value="5" oninput="updateColorCount(this.value)">
+                </div>
+                <div class="slider-description">
+                    Choose how many dominant colors to extract. Use fewer colors for minimalist palettes or more colors to capture subtle variations.
+                </div>
+            </div>
+
+            <button onclick="extractPalette()">Extract Palette</button>
+        </div>
+
+        <div class="preview-section" id="preview">
+            <div class="image-preview">
+                <img id="previewImage" src="" alt="Uploaded image">
+            </div>
+
+            <div class="palette-grid" id="paletteGrid"></div>
+
+            <div class="action-buttons">
+                <button onclick="copyAllColors()">Copy All Hex Codes</button>
+                <button class="secondary-btn" onclick="downloadPalette()">Download Palette</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedImage = null;
+        let extractedColors = [];
+
+        // Dark mode toggle with real-time sync across tabs
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('themeIcon');
+            const isDark = document.body.classList.contains('dark-mode');
+            icon.textContent = isDark ? '☀️' : '🌙';
+            
+            // Save preference globally
+            localStorage.setItem('smarttools-darkMode', isDark);
+        }
+
+        // Load saved theme preference on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const darkMode = localStorage.getItem('smarttools-darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').textContent = '☀️';
+            }
+        });
+
+        // Listen for changes in other tabs/windows
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'smarttools-darkMode') {
+                const isDark = e.newValue === 'true';
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                    document.getElementById('themeIcon').textContent = '☀️';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    document.getElementById('themeIcon').textContent = '🌙';
+                }
+            }
+        });
+
+        // Update color count display
+        function updateColorCount(value) {
+            document.getElementById('colorCountValue').textContent = value;
+            if (uploadedImage) {
+                extractPalette();
+            }
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            if (!file.type.match('image.*')) {
+                alert('Please upload an image file.');
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    uploadedImage = img;
+                    document.getElementById('previewImage').src = e.target.result;
+                    document.getElementById('settings').classList.add('show');
+                    extractPalette();
+                };
+                img.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function extractPalette() {
+            if (!uploadedImage) return;
+
+            const colorCount = parseInt(document.getElementById('colorCount').value);
+            const colors = getColorPalette(uploadedImage, colorCount);
+            extractedColors = colors;
+            displayPalette(colors);
+        }
+
+        function getColorPalette(img, colorCount) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Resize for performance
+            const maxSize = 200;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height && width > maxSize) {
+                height = (height * maxSize) / width;
+                width = maxSize;
+            } else if (height > maxSize) {
+                width = (width * maxSize) / height;
+                height = maxSize;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const imageData = ctx.getImageData(0, 0, width, height).data;
+            const pixels = [];
+
+            // Sample pixels
+            for (let i = 0; i < imageData.length; i += 4 * 10) {
+                pixels.push([
+                    imageData[i],
+                    imageData[i + 1],
+                    imageData[i + 2]
+                ]);
+            }
+
+            // K-means clustering
+            return kMeans(pixels, colorCount);
+        }
+
+        function kMeans(pixels, k) {
+            // Initialize centroids randomly
+            let centroids = [];
+            for (let i = 0; i < k; i++) {
+                centroids.push(pixels[Math.floor(Math.random() * pixels.length)]);
+            }
+
+            let iterations = 10;
+            while (iterations--) {
+                // Assign pixels to nearest centroid
+                const clusters = Array(k).fill().map(() => []);
+                
+                pixels.forEach(pixel => {
+                    let minDist = Infinity;
+                    let clusterIndex = 0;
+
+                    centroids.forEach((centroid, i) => {
+                        const dist = colorDistance(pixel, centroid);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            clusterIndex = i;
+                        }
+                    });
+
+                    clusters[clusterIndex].push(pixel);
+                });
+
+                // Recalculate centroids
+                centroids = clusters.map(cluster => {
+                    if (cluster.length === 0) return centroids[0];
+                    
+                    const sum = cluster.reduce((acc, pixel) => [
+                        acc[0] + pixel[0],
+                        acc[1] + pixel[1],
+                        acc[2] + pixel[2]
+                    ], [0, 0, 0]);
+
+                    return [
+                        Math.round(sum[0] / cluster.length),
+                        Math.round(sum[1] / cluster.length),
+                        Math.round(sum[2] / cluster.length)
+                    ];
+                });
+            }
+
+            // Sort by brightness for better visual order
+            centroids.sort((a, b) => {
+                const brightnessA = (a[0] + a[1] + a[2]) / 3;
+                const brightnessB = (b[0] + b[1] + b[2]) / 3;
+                return brightnessB - brightnessA;
+            });
+
+            return centroids;
+        }
+
+        function colorDistance(c1, c2) {
+            return Math.sqrt(
+                Math.pow(c1[0] - c2[0], 2) +
+                Math.pow(c1[1] - c2[1], 2) +
+                Math.pow(c1[2] - c2[2], 2)
+            );
+        }
+
+        function rgbToHex(rgb) {
+            return '#' + rgb.map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function displayPalette(colors) {
+            const paletteGrid = document.getElementById('paletteGrid');
+            
+            paletteGrid.innerHTML = colors.map((color, index) => {
+                const hex = rgbToHex(color);
+                const rgb = `RGB(${color[0]}, ${color[1]}, ${color[2]})`;
+                
+                return `
+                    <div class="color-card" onclick="copyColor('${hex}', ${index})">
+                        <div class="color-swatch" style="background-color: ${hex};">
+                            <div class="copy-indicator" id="indicator-${index}">✓ Copied!</div>
+                        </div>
+                        <div class="color-info">
+                            <div class="color-hex">${hex.toUpperCase()}</div>
+                            <div class="color-rgb">${rgb}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('preview').classList.add('show');
+        }
+
+        function copyColor(hex, index) {
+            navigator.clipboard.writeText(hex).then(() => {
+                const indicator = document.getElementById(`indicator-${index}`);
+                indicator.classList.add('show');
+                
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 1500);
+            });
+        }
+
+        function copyAllColors() {
+            if (extractedColors.length === 0) return;
+
+            const hexCodes = extractedColors.map(color => rgbToHex(color)).join(', ');
+            navigator.clipboard.writeText(hexCodes).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied All!';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        function downloadPalette() {
+            if (extractedColors.length === 0) return;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const swatchWidth = 200;
+            const swatchHeight = 100;
+            const padding = 20;
+
+            canvas.width = swatchWidth * extractedColors.length + padding * (extractedColors.length + 1);
+            canvas.height = swatchHeight + padding * 2 + 40;
+
+            // Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw color swatches
+            extractedColors.forEach((color, index) => {
+                const hex = rgbToHex(color);
+                const x = padding + (swatchWidth + padding) * index;
+                const y = padding;
+
+                // Color swatch
+                ctx.fillStyle = hex;
+                ctx.fillRect(x, y, swatchWidth, swatchHeight);
+
+                // Hex code text
+                ctx.fillStyle = '#333333';
+                ctx.font = 'bold 16px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(hex.toUpperCase(), x + swatchWidth / 2, y + swatchHeight + 30);
+            });
+
+            const link = document.createElement('a');
+            link.download = `color-palette-${new Date().getTime()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Apply dark mode immediately on load
+        window.addEventListener("DOMContentLoaded", () => {
+        const isDark = localStorage.getItem("smarttools-darkMode") === "true";
+        document.body.classList.toggle("dark-mode", isDark);
+        const icon = document.getElementById("themeIcon");
+        if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        });
+
+        // Listen for changes from other pages (storage event)
+        window.addEventListener("storage", (e) => {
+        if (e.key === "smarttools-darkMode") {
+            const isDark = e.newValue === "true";
+            document.body.classList.toggle("dark-mode", isDark);
+            const icon = document.getElementById("themeIcon");
+            if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        }
+        });
+
+        // 🔄 Also handle when you come back from another tool page
+        document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            const isDark = localStorage.getItem("smarttools-darkMode") === "true";
+            document.body.classList.toggle("dark-mode", isDark);
+            const icon = document.getElementById("themeIcon");
+            if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        }
+        });
+
+    </script>
+</body>
+</html>

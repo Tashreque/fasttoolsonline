@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Tools Suite - Free Online Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            transition: background 0.3s ease;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 48px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 20px;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .tool-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        .tool-title {
+            color: #333;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .tool-description {
+            color: #666;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .tool-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .features {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .features h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-text h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .feature-text p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            padding: 20px;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle span {
+            font-size: 20px;
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .tool-card {
+            background: rgba(30, 30, 46, 0.95);
+        }
+
+        body.dark-mode .tool-title {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .tool-description {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .features {
+            background: rgba(30, 30, 46, 0.95);
+        }
+
+        body.dark-mode .features h2 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .feature-text h3 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .feature-text p {
+            color: #b0b0b0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+
+            .tagline {
+                font-size: 16px;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Smart Tools Suite</h1>
+            <p class="tagline">Free, Simple, Fast, and privacy-focused online tools</p>
+        </div>
+
+        <div class="tools-grid">
+            <a href="qr_code.html" class="tool-card">
+                <div class="tool-icon">🎯</div>
+                <h2 class="tool-title">QR Code Generator</h2>
+                <p class="tool-description">Create custom, scannable QR codes instantly with adjustable colors and sizes</p>
+                <span class="tool-badge">Free Tool</span>
+            </a>
+
+            <a href="compressor.html" class="tool-card">
+                <div class="tool-icon">🗜️</div>
+                <h2 class="tool-title">Image Compressor</h2>
+                <p class="tool-description">Compress JPEG & PNG images without losing quality. See before/after previews</p>
+                <span class="tool-badge">Free Tool</span>
+            </a>
+
+            <a href="email_extractor.html" class="tool-card">
+                <div class="tool-icon">📧</div>
+                <h2 class="tool-title">Email Extractor</h2>
+                <p class="tool-description">Extract and validate email addresses from text, resumes, and documents</p>
+                <span class="tool-badge">Free Tool</span>
+            </a>
+
+            <a href="colour_palette_extractor.html" class="tool-card">
+                <div class="tool-icon">🎨</div>
+                <h2 class="tool-title">Color Palette Extractor</h2>
+                <p class="tool-description">Extract beautiful color palettes from any image using smart algorithms</p>
+                <span class="tool-badge">Free Tool</span>
+            </a>
+        </div>
+
+        <div class="features">
+            <h2>Why Choose Our Tools?</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-text">
+                        <h3>100% Private</h3>
+                        <p>All processing happens in your browser. Your data never leaves your device.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">
+                        <h3>Lightning Fast</h3>
+                        <p>No server uploads or waiting. Instant results with no delays.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">🆓</div>
+                    <div class="feature-text">
+                        <h3>Completely Free</h3>
+                        <p>No subscriptions, no sign-ups, no hidden fees. Use unlimited times.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-text">
+                        <h3>Works Everywhere</h3>
+                        <p>Fully responsive design works on desktop, tablet, and mobile devices.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-text">
+                        <h3>Beautiful Design</h3>
+                        <p>Modern, intuitive interface with dark mode support.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">🌐</div>
+                    <div class="feature-text">
+                        <h3>No Installation</h3>
+                        <p>Works directly in your browser. No downloads or installations needed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>All tools are free and open for use. No data is collected or stored. © 2025 Smart Tools Suite</p>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode toggle with global sync
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('themeIcon');
+            const isDark = document.body.classList.contains('dark-mode');
+            icon.textContent = isDark ? '☀️' : '🌙';
+            
+            // Save preference globally
+            localStorage.setItem('smarttools-darkMode', isDark);
+        }
+
+        // Load saved theme preference on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const darkMode = localStorage.getItem('smarttools-darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').textContent = '☀️';
+            }
+        });
+
+        // Listen for changes in other tabs/windows
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'smarttools-darkMode') {
+                const isDark = e.newValue === 'true';
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                    document.getElementById('themeIcon').textContent = '☀️';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    document.getElementById('themeIcon').textContent = '🌙';
+                }
+            }
+        });
+
+        // Apply dark mode immediately on load
+        window.addEventListener("DOMContentLoaded", () => {
+        const isDark = localStorage.getItem("smarttools-darkMode") === "true";
+        document.body.classList.toggle("dark-mode", isDark);
+        const icon = document.getElementById("themeIcon");
+        if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        });
+
+        // Listen for changes from other pages (storage event)
+        window.addEventListener("storage", (e) => {
+        if (e.key === "smarttools-darkMode") {
+            const isDark = e.newValue === "true";
+            document.body.classList.toggle("dark-mode", isDark);
+            const icon = document.getElementById("themeIcon");
+            if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        }
+        });
+
+        // 🔄 Also handle when you come back from another tool page
+        document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            const isDark = localStorage.getItem("smarttools-darkMode") === "true";
+            document.body.classList.toggle("dark-mode", isDark);
+            const icon = document.getElementById("themeIcon");
+            if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        }
+        });
+
+    </script>
+</body>
+</html>
