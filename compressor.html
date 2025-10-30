@@ -16,10 +16,18 @@
             background: linear-gradient(135deg, #e8f0f7 0%, #f5f9fc 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
+            flex-direction: column;      /* ✅ stack elements vertically */
+            justify-content: center;     /* centers content vertically */
             padding: 20px;
             transition: background 0.3s ease;
+        }
+
+        .footer {
+            text-align: center;
+            color: #4a6785;
+            font-size: 14px;
+            padding: 20px;
         }
 
         .home-btn {
@@ -384,6 +392,10 @@
             color: #5dade2;
         }
 
+        body.dark-mode .footer {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
         body.dark-mode .upload-subtext {
             color: #b0c4d9;
         }
@@ -528,6 +540,13 @@
 
             <button onclick="downloadCompressed()">Download Compressed Image</button>
         </div>
+    </div>
+
+    <div class="footer">
+        <p>
+            All tools are free and open for use. © 2025 Smart Tools Suite |
+            <a href="privacy.html" class="footer-link">Privacy Policy</a>
+        </p>
     </div>
 
     <script>

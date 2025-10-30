@@ -16,10 +16,18 @@
             background: linear-gradient(135deg, #e8f0f7 0%, #f5f9fc 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
+            flex-direction: column;      /* ✅ stack elements vertically */
+            justify-content: center;     /* centers content vertically */
             padding: 20px;
             transition: background 0.3s ease;
+        }
+
+        .footer {
+            text-align: center;
+            color: #4a6785;
+            font-size: 14px;
+            padding: 20px;
         }
 
         .home-btn {
@@ -285,6 +293,9 @@
         body.dark-mode h1 {
             color: #e8f0f7;
         }
+        body.dark-mode .footer {
+            color: rgba(255, 255, 255, 0.7);
+        }
 
         body.dark-mode .subtitle {
             color: #b0c4d9;
@@ -398,6 +409,13 @@
             <div class="scan-note">✓ Fully scannable with any QR reader!</div>
             <button class="download-btn" onclick="downloadQR()">Download QR Code</button>
         </div>
+    </div>
+
+    <div class="footer">
+        <p>
+            All tools are free and open for use. © 2025 Smart Tools Suite |
+            <a href="privacy.html" class="footer-link">Privacy Policy</a>
+        </p>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
